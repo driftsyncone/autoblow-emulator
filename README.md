@@ -1,6 +1,6 @@
 # Autoblow Emulator
 
-A fake of Autoblow's cloud device API (VacuGlide 1/2, AI Ultra, VacuPump), so you can build and
+A fake of Autoblow's cloud device API (VacuGlide 2, AI Ultra, VacuPump), so you can build and
 test apps that control Autoblow devices **without owning the devices**, without a connected
 device, and without hitting the real API's rate limits. A web page shows what each emulated
 device would be doing, and lets you break things on purpose (device goes offline, slow answers,
