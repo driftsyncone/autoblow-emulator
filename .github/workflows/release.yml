@@ -1,0 +1,43 @@
+# Push a tag vX.Y.Z (matching package.json) to publish a release with the package tarball and
+# checksums. The notes are that version's section of CHANGELOG.md.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: Tag must match package.json, dist must be current
+        run: |
+          v="$(node -p "require('./package.json').version")"
+          [ "v$v" = "$GITHUB_REF_NAME" ] || { echo "::error::Tag $GITHUB_REF_NAME does not match package.json version $v"; exit 1; }
+          node scripts/build.mjs --check
+      - run: npm test
+      - name: Package and notes
+        run: |
+          mkdir release
+          npm pack --pack-destination release
+          (cd release && sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt)
+          node scripts/changelog.mjs "$GITHUB_REF_NAME" > notes.md
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          pre=""; [[ "$TAG" == *-* ]] && pre="--prerelease"
+          gh release create "$TAG" release/* $pre --title "Autoblow Emulator ${TAG#v}" --notes-file notes.md --verify-tag

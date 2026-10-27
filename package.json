@@ -1,0 +1,23 @@
+{
+  "name": "autoblow-emulator",
+  "version": "0.2.0",
+  "description": "A fake Autoblow cloud API (VacuGlide, AI Ultra, VacuPump) with a live page, for testing apps without the devices",
+  "license": "CC-BY-NC-SA-4.0",
+  "author": "DriftSyncOne",
+  "private": true,
+  "repository": { "type": "git", "url": "git+https://github.com/driftsyncone/autoblow-emulator.git" },
+  "bugs": { "url": "https://github.com/driftsyncone/autoblow-emulator/issues" },
+  "homepage": "https://github.com/driftsyncone/autoblow-emulator#readme",
+  "keywords": ["autoblow", "vacuglide", "emulator", "mock", "api", "testing"],
+  "type": "module",
+  "bin": { "autoblow-emulator": "bin/autoblow-emulator.js" },
+  "files": ["bin", "dist", "public", "LICENSE", "README.md", "CHANGELOG.md"],
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node dist/server.js",
+    "dev": "node src/server.ts",
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/build.mjs --check",
+    "test": "node --test"
+  }
+}

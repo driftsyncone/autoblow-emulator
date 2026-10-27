@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Node ${{ matrix.node }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-latest, macos-latest]
+        node: [18, 20, 22, 24]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm test
+
+  package:
+    name: dist is current, Docker image works
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: dist/ matches src/
+        run: node scripts/build.mjs --check
+      - name: Docker image answers the API
+        run: |
+          docker build -t autoblow-emulator .
+          docker run -d --name emu -p 127.0.0.1:8792:8792 autoblow-emulator
+          for i in $(seq 1 20); do curl -fsS -H 'x-device-token: emu-vacuglide' http://127.0.0.1:8792/vacuglide/connected && break; sleep 1; done
+          curl -fsS -H 'x-device-token: emu-vacuglide' http://127.0.0.1:8792/vacuglide/connected | grep -q '"connected":true'

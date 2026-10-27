@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Autoblow Emulator</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header>
+        <div>
+          <h1>Autoblow Emulator</h1>
+          <p class="muted">Pretends to be Autoblow's cloud API so apps can be tested without the devices.</p>
+        </div>
+        <span id="conn" class="pill">connecting…</span>
+      </header>
+
+      <section class="card hint">
+        <b>Connect an app:</b> use <code id="base"></code> as the Autoblow API URL (in BlowLink: Settings → Autoblow API URL),
+        then add a device with one of the tokens below.
+      </section>
+
+      <section>
+        <h2>Devices</h2>
+        <div id="devices"></div>
+        <form id="add" class="card row">
+          <select name="type">
+            <option value="vacuglide">VacuGlide</option>
+            <option value="autoblow-ultra">AI Ultra</option>
+            <option value="vacupump">VacuPump</option>
+          </select>
+          <input name="token" placeholder="Token (optional, random if empty)" />
+          <button>Add device</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Trouble on purpose</h2>
+        <label>Extra latency per API call: <b id="latv">0</b> ms
+          <input id="latency" type="range" min="0" max="2000" step="50" value="0" />
+        </label>
+        <label>Rate limit (calls per second per token, 0 = off): <b id="ratev">0</b>
+          <input id="rate" type="range" min="0" max="20" step="1" value="0" />
+        </label>
+        <p class="muted">Per device: switch it offline to get <code>connected: false</code> and HTTP 502 on commands, like a real device that dropped off.</p>
+      </section>
+
+      <section class="card">
+        <div class="row between"><h2>API calls</h2><button id="clear" class="ghost">Clear</button></div>
+        <div class="logwrap"><table id="log"><thead><tr><th>Time</th><th>Device</th><th>Call</th><th>Body</th><th>Status</th><th>Answer</th></tr></thead><tbody></tbody></table></div>
+      </section>
+    </div>
+    <script src="/app.js"></script>
+  </body>
+</html>
